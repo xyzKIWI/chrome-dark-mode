@@ -12,7 +12,6 @@
 
 ## 特點
 
-- 單一 `.bat`，不需要另外攜帶 `.ps1`。
 - 使用 Windows 內建 PowerShell，不需安裝額外軟體。
 - 套用於同一 Windows 使用者下的現有 Chrome Profile。
 - 訪客與新建立的 Profile 由 Chrome 深色啟動參數涵蓋。
