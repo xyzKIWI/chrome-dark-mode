@@ -8,7 +8,7 @@ exit /b %errorlevel%
 #CHROME_DARK_MODE_POWERSHELL
 [Console]::InputEncoding = [System.Text.Encoding]::UTF8
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-$Host.UI.RawUI.WindowTitle = 'Chrome 深色模式'
+$Host.UI.RawUI.WindowTitle = 'Chrome Dark Mode'
 
 function Get-ChromePath {
     $candidates = @(
@@ -20,10 +20,10 @@ function Get-ChromePath {
 }
 
 function Stop-Chrome {
-    Write-Host '[1/4] 正在正常關閉 Chrome...'
+    Write-Host '[1/4] Closing Chrome safely...'
     $processes = Get-Process chrome -ErrorAction SilentlyContinue
     if (-not $processes) {
-        Write-Host '      Chrome 本來就未在執行。'
+        Write-Host '      Chrome is not currently running.'
         return
     }
 
@@ -36,13 +36,13 @@ function Stop-Chrome {
     }
     Get-Process chrome -ErrorAction SilentlyContinue |
         Stop-Process -Force -ErrorAction SilentlyContinue
-    Write-Host '      Chrome 已關閉。'
+    Write-Host '      Chrome has been closed.'
 }
 
 function Set-ForceDarkFlag([bool]$Enabled) {
     $localStatePath = Join-Path $env:LOCALAPPDATA 'Google\Chrome\User Data\Local State'
     if (-not (Test-Path -LiteralPath $localStatePath)) {
-        Write-Host '      錯誤：找不到 Chrome Local State 設定檔。' -ForegroundColor Red
+        Write-Host '      Error: Chrome Local State was not found.' -ForegroundColor Red
         return $false
     }
 
@@ -121,7 +121,7 @@ function Set-ProfileColorScheme([int]$Value) {
                 $updatedProfiles++
             }
         } catch {
-            Write-Host "      無法更新 $($profileDir.Name)：$($_.Exception.Message)" -ForegroundColor Yellow
+            Write-Host "      Could not update $($profileDir.Name): $($_.Exception.Message)" -ForegroundColor Yellow
         }
     }
     return $updatedProfiles
@@ -130,88 +130,88 @@ function Set-ProfileColorScheme([int]$Value) {
 function Start-Chrome([bool]$DarkMode) {
     $chromePath = Get-ChromePath
     if (-not $chromePath) {
-        Write-Host '      錯誤：找不到 chrome.exe。' -ForegroundColor Red
+        Write-Host '      Error: chrome.exe was not found.' -ForegroundColor Red
         return
     }
 
     if ($DarkMode) {
         Start-Process -FilePath $chromePath -ArgumentList '--force-dark-mode'
-        Write-Host '      Chrome 已以完整深色模式重新開啟。' -ForegroundColor Green
+        Write-Host '      Chrome has restarted in full dark mode.' -ForegroundColor Green
     } else {
         Start-Process -FilePath $chromePath
-        Write-Host '      Chrome 已用預設外觀重新開啟。' -ForegroundColor Green
+        Write-Host '      Chrome has restarted with its default appearance.' -ForegroundColor Green
     }
 }
 
 function Enable-DarkMode {
     Clear-Host
     Write-Host '========================================' -ForegroundColor Cyan
-    Write-Host '          Chrome 完整深色模式           ' -ForegroundColor Cyan
-    Write-Host '   網頁內容 + 所有 Chrome 設定檔外觀   ' -ForegroundColor Cyan
+    Write-Host '          Chrome Full Dark Mode          ' -ForegroundColor Cyan
+    Write-Host '      Web Content + All Chrome Profiles  ' -ForegroundColor Cyan
     Write-Host '========================================' -ForegroundColor Cyan
     Write-Host ''
 
     Stop-Chrome
     Write-Host ''
-    Write-Host '[2/4] 正在啟用網頁深色模式...'
+    Write-Host '[2/4] Enabling dark mode for web content...'
     if (Set-ForceDarkFlag $true) {
-        Write-Host '      網頁深色模式已啟用。' -ForegroundColor Green
+        Write-Host '      Dark mode for web content is enabled.' -ForegroundColor Green
     }
 
     Write-Host ''
-    Write-Host '[3/4] 正在更新現有 Chrome 設定檔...'
+    Write-Host '[3/4] Updating existing Chrome profiles...'
     $count = Set-ProfileColorScheme 2
-    Write-Host "      已更新 $count 個設定檔；訪客與新設定檔由啟動參數涵蓋。" -ForegroundColor Green
+    Write-Host "      Updated $count profile(s). Guest and new profiles are covered by the launch option." -ForegroundColor Green
 
     Write-Host ''
-    Write-Host '[4/4] 正在重新開啟 Chrome...'
+    Write-Host '[4/4] Restarting Chrome...'
     Start-Chrome $true
 }
 
 function Reset-DarkMode {
     Clear-Host
     Write-Host '========================================' -ForegroundColor Cyan
-    Write-Host '          Chrome 外觀還原               ' -ForegroundColor Cyan
+    Write-Host '       Restore Chrome Appearance         ' -ForegroundColor Cyan
     Write-Host '========================================' -ForegroundColor Cyan
     Write-Host ''
 
     Stop-Chrome
     Write-Host ''
-    Write-Host '[2/4] 正在移除網頁深色模式...'
+    Write-Host '[2/4] Removing dark mode for web content...'
     if (Set-ForceDarkFlag $false) {
-        Write-Host '      深色 Flag 已移除，其他 Flags 已保留。' -ForegroundColor Green
+        Write-Host '      The dark-mode flag was removed. Other custom flags were preserved.' -ForegroundColor Green
     }
 
     Write-Host ''
-    Write-Host '[3/4] 正在還原現有 Chrome 設定檔...'
+    Write-Host '[3/4] Restoring existing Chrome profiles...'
     $count = Set-ProfileColorScheme 0
-    Write-Host "      已將 $count 個設定檔還原為裝置預設。" -ForegroundColor Green
+    Write-Host "      Restored $count profile(s) to the system default." -ForegroundColor Green
 
     Write-Host ''
-    Write-Host '[4/4] 正在重新開啟 Chrome...'
+    Write-Host '[4/4] Restarting Chrome...'
     Start-Chrome $false
 }
 
 Clear-Host
 Write-Host '========================================' -ForegroundColor Cyan
-Write-Host '          Chrome 深色模式               ' -ForegroundColor Cyan
+Write-Host '            Chrome Dark Mode             ' -ForegroundColor Cyan
 Write-Host '========================================' -ForegroundColor Cyan
 Write-Host ''
-Write-Host '  [1] 啟用完整深色模式'
-Write-Host '  [2] 還原 Chrome 預設外觀'
-Write-Host '  [0] 取消'
+Write-Host '  [1] Enable full dark mode'
+Write-Host '  [2] Restore the default Chrome appearance'
+Write-Host '  [0] Cancel'
 Write-Host ''
-$choice = Read-Host '請輸入選項'
+$choice = Read-Host 'Select an option'
 
 switch ($choice) {
     '1' { Enable-DarkMode }
     '2' { Reset-DarkMode }
     default {
-        Write-Host '已取消。'
+        Write-Host 'Cancelled.'
         Start-Sleep -Seconds 1
         exit
     }
 }
 
 Write-Host ''
-Read-Host '完成。按 Enter 關閉此視窗' | Out-Null
+Read-Host 'Finished. Press Enter to close this window' | Out-Null

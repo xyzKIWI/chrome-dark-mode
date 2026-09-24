@@ -1,29 +1,29 @@
-# Chrome 深色模式切換工具
+# Chrome Dark Mode Toggle
 
-這是一個可攜式 Windows 批次工具，將網頁內容與 Chrome 外觀切換為深色模式，也能還原成裝置預設外觀。
+A portable Windows batch tool that switches both Chrome's interface and web content to dark mode, with an option to restore the system-default appearance.
 
-## 使用方式
+## Usage
 
-1. 下載 `ChromeDarkMode.bat`。
-2. 雙擊執行。
-3. 輸入 `1` 啟用完整深色模式，或輸入 `2` 還原預設外觀。
+1. Download `ChromeDarkMode.bat`.
+2. Double-click the file.
+3. Enter `1` to enable full dark mode or `2` to restore the default appearance.
 
-執行時會先關閉所有 Chrome 視窗，再重新開啟 Chrome。請先保存尚未送出的表單或網頁內容。
+The tool closes all Chrome windows before applying the change, then restarts Chrome. Save any unfinished forms or unsent content before running it.
 
-## 特點
+## Features
 
-- 使用 Windows 內建 PowerShell，不需安裝額外軟體。
-- 套用於同一 Windows 使用者下的現有 Chrome Profile。
-- 訪客與新建立的 Profile 由 Chrome 深色啟動參數涵蓋。
-- 還原時只移除本工具使用的深色 Flag，保留其他自訂 Chrome Flags。
-- 不需要系統管理員權限，也不會寫入 Chrome 原則登錄機碼。
+- Uses the built-in Windows PowerShell runtime; no additional installation is required.
+- Updates existing Chrome profiles for the current Windows user.
+- Covers Guest mode and newly created profiles through Chrome's dark-mode launch option.
+- Removes only this tool's dark-mode flag when restoring, preserving other custom Chrome flags.
+- Requires no administrator privileges and does not write Chrome policy registry keys.
 
-## 系統需求
+## Requirements
 
-- Windows 10 或 Windows 11
+- Windows 10 or Windows 11
 - Google Chrome
-- Windows PowerShell 5.1 或更新版本
+- Windows PowerShell 5.1 or later
 
-## 注意事項
+## Notes
 
-Chrome 更新可能調整設定檔格式或深色模式參數。如果新版 Chrome 行為改變，請重新測試後再使用。
+Future Chrome releases may change the preferences format or dark-mode launch option. Retest the tool after major Chrome updates if its behavior changes.
