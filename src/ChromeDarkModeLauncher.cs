@@ -4,14 +4,15 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 
-[assembly: AssemblyTitle("Chrome Dark Mode Tool")]
-[assembly: AssemblyDescription("Toggle Chrome and web content between dark mode and the default appearance.")]
+[assembly: AssemblyTitle("Browser Dark Mode Tool")]
+[assembly: AssemblyDescription("Toggle supported browsers and web content between dark mode and the default appearance.")]
 [assembly: AssemblyCompany("KIWI")]
-[assembly: AssemblyProduct("Chrome Dark Mode Tool")]
+[assembly: AssemblyProduct("Browser Dark Mode Tool")]
 [assembly: AssemblyCopyright("Copyright (c) 2026 KIWI")]
-[assembly: AssemblyVersion("1.1.0.0")]
-[assembly: AssemblyFileVersion("1.1.0.0")]
+[assembly: AssemblyVersion("1.2.0.0")]
+[assembly: AssemblyFileVersion("1.2.0.0")]
 
 internal static class Program
 {
@@ -26,6 +27,8 @@ internal static class Program
 
     private static int Main()
     {
+        string temporaryScriptPath = null;
+
         try
         {
             SetConsoleCP(65001);
@@ -42,7 +45,12 @@ internal static class Program
 
             string script = payload.Substring(markerIndex + ScriptMarker.Length)
                 .TrimStart('\r', '\n');
-            string encodedScript = Convert.ToBase64String(Encoding.Unicode.GetBytes(script));
+
+            temporaryScriptPath = Path.Combine(
+                Path.GetTempPath(),
+                "BrowserDarkMode_" + Guid.NewGuid().ToString("N") + ".ps1"
+            );
+            File.WriteAllText(temporaryScriptPath, script, new UTF8Encoding(false));
 
             string powershellPath = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.System),
@@ -59,7 +67,7 @@ internal static class Program
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
                 FileName = powershellPath,
-                Arguments = "-NoLogo -NoProfile -ExecutionPolicy Bypass -EncodedCommand " + encodedScript,
+                Arguments = "-NoLogo -NoProfile -ExecutionPolicy Bypass -File \"" + temporaryScriptPath + "\"",
                 UseShellExecute = false,
                 CreateNoWindow = false,
                 WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory
@@ -78,12 +86,16 @@ internal static class Program
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine("Chrome Dark Mode Tool could not start:");
+            Console.Error.WriteLine("Browser Dark Mode Tool could not start:");
             Console.Error.WriteLine(ex.Message);
             Console.Error.WriteLine();
             Console.Error.Write("Press Enter to close this window...");
             Console.ReadLine();
             return 1;
+        }
+        finally
+        {
+            DeleteTemporaryScript(temporaryScriptPath);
         }
     }
 
@@ -100,6 +112,30 @@ internal static class Program
             using (StreamReader reader = new StreamReader(stream, Encoding.UTF8, true))
             {
                 return reader.ReadToEnd();
+            }
+        }
+    }
+
+    private static void DeleteTemporaryScript(string path)
+    {
+        if (String.IsNullOrEmpty(path))
+        {
+            return;
+        }
+
+        for (int attempt = 0; attempt < 10; attempt++)
+        {
+            try
+            {
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                }
+                return;
+            }
+            catch
+            {
+                Thread.Sleep(100);
             }
         }
     }
